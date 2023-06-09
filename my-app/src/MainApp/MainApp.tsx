@@ -32,21 +32,22 @@ function PrevNextButtons(props: {
     setCount(newCount);
     onChange(newCount);
   };
-
+  const prevButton = (
+    <button style={{ zIndex: 1 }} onClick={goTo(-1)}>
+      Prev
+    </button>
+  );
+  const nextButton = (
+    <button style={{ zIndex: 1 }} onClick={goTo(1)}>
+      Next
+    </button>
+  );
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ display: 'flex' }}>
-        {count > 0 && (
-          <button style={{ zIndex: 1 }} onClick={goTo(-1)}>
-            Prev
-          </button>
-        )}
+        {count > 0 && prevButton}
         <div style={{ flexGrow: 1 }}> </div>
-        {count < max - 1 && (
-          <button style={{ zIndex: 1 }} onClick={goTo(1)}>
-            Next
-          </button>
-        )}
+        {count < max - 1 && nextButton}
       </div>
       {pageNumber(count)}
     </div>
