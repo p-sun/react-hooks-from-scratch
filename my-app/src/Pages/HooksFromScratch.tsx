@@ -44,12 +44,7 @@ export function HooksFromScratch() {
           setMax(parseInt(e.target.value));
         }}
       />
-      <RandomNumberList
-        min={min}
-        max={max}
-        count={5}
-        showBackgroundColor={on}
-      />
+      <RandomNumberList min={min} max={max} count={5} showBackgroundColor={on} />
     </div>
   );
 }
@@ -89,9 +84,7 @@ function RandomNumberList(props: {
         backgroundColor: showBackgroundColor ? '#7fcfff' : undefined,
       }}
     >
-      <div style={{ fontWeight: 'bold', borderBottom: '1px solid black' }}>
-        {name ?? '...'}
-      </div>
+      <div style={{ fontWeight: 'bold', borderBottom: '1px solid black' }}>{name ?? '...'}</div>
       {values.map((v, index) => {
         return <div key={index}>{Math.floor(v * 100 + 0.5) / 100}</div>;
       })}
@@ -106,10 +99,7 @@ export function useRef_<S>(d: S | null): { current: S | null } {
 
 function useMemo_<T>(valueFn: () => T, deps: any[]) {
   const valuesInfo = useRef_<{ value: T; deps: any[] } | null>(null);
-  if (
-    valuesInfo.current === null ||
-    !arraysAreEqual(valuesInfo.current.deps, deps)
-  ) {
+  if (valuesInfo.current === null || !arraysAreEqual(valuesInfo.current.deps, deps)) {
     valuesInfo.current = {
       value: valueFn(),
       deps,

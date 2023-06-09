@@ -1,8 +1,6 @@
 import { useRef } from 'react';
 
-export function RenderCounter(props: {
-  children: JSX.Element[] | JSX.Element;
-}) {
+export function RenderCounter(props: { children: JSX.Element[] | JSX.Element }) {
   const count = useRef(0);
   count.current += 1;
   const h = count.current / 10 + 0.2;
@@ -16,9 +14,7 @@ export function RenderCounter(props: {
       }}
     >
       {props.children}
-      <div style={{ fontSize: 'medium', color: 'black' }}>
-        Renders: {count.current}{' '}
-      </div>
+      <div style={{ fontSize: 'medium', color: 'black' }}>Renders: {count.current} </div>
     </div>
   );
 }

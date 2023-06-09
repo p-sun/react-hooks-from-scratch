@@ -54,9 +54,5 @@ function Toggle(props: { labels: [string, string] }) {
 
   const [on, setOn] = useState(true);
 
-  return (
-    <button onClick={() => setOn(!on)}>
-      {on ? props.labels[0] : props.labels[1]}
-    </button>
-  );
+  return <button onClick={() => setOn(!on)}>{on ? props.labels[0] : props.labels[1]}</button>;
 }

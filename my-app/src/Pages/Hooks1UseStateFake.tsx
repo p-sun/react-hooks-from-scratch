@@ -44,10 +44,7 @@ function DoubleCounter(props: { path: string }) {
   );
 }
 
-function useState_<S>(
-  initialState: S,
-  key: string
-): [S, (newState: S) => void] {
+function useState_<S>(initialState: S, key: string): [S, (newState: S) => void] {
   _index++;
   debugger;
 
@@ -55,16 +52,10 @@ function useState_<S>(
   const currentState = getStateAtReactPath<S>(nodeId, _index);
   const index = _index;
   if (currentState) {
-    return [
-      currentState.state,
-      (newState: S) => setStateAtReactPath(nodeId, index, newState),
-    ];
+    return [currentState.state, (newState: S) => setStateAtReactPath(nodeId, index, newState)];
   } else {
     setStateAtReactPath(nodeId, index, initialState);
-    return [
-      initialState,
-      (newState: S) => setStateAtReactPath(nodeId, index, newState),
-    ];
+    return [initialState, (newState: S) => setStateAtReactPath(nodeId, index, newState)];
   }
 }
 
@@ -74,10 +65,7 @@ function getReactPath(path: string): string {
   return 'MyNodeId-' + path;
 }
 
-function getStateAtReactPath<S>(
-  nodeId: string,
-  index: number
-): { state: S } | undefined {
+function getStateAtReactPath<S>(nodeId: string, index: number): { state: S } | undefined {
   const state = _allStates[nodeId] && (_allStates[nodeId][index] as S);
   return state ? { state } : undefined;
 }
@@ -86,9 +74,7 @@ function setStateAtReactPath<S>(nodeId: string, index: number, newState: S) {
   // Mark this node and every parent up the chain as "dirty"
 
   if (index > (_allStates[nodeId]?.length ?? 0)) {
-    throw new Error(
-      `Infra error: Failed to set state at index ${index} for ${nodeId}`
-    );
+    throw new Error(`Infra error: Failed to set state at index ${index} for ${nodeId}`);
   }
 
   if (_allStates[nodeId] === undefined) {

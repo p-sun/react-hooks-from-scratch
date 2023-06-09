@@ -21,10 +21,7 @@ const pages: Page[] = [
   { title: 'ProductsList', component: ProductsList },
 ];
 
-function PrevNextButtons(props: {
-  max: number;
-  onChange: (count: number) => void;
-}) {
+function PrevNextButtons(props: { max: number; onChange: (count: number) => void }) {
   const { max, onChange } = props;
   const [count, setCount] = useState(0);
   const goTo = (increment: number) => () => {
@@ -76,9 +73,7 @@ export default function MainApp() {
   const page = pages[index];
   return (
     <>
-      <div style={{ textAlign: 'center', fontSize: 'larger' }}>
-        {page.title}
-      </div>
+      <div style={{ textAlign: 'center', fontSize: 'larger' }}>{page.title}</div>
       <PrevNextButtons max={pages.length} onChange={setIndex} />
       <br />
       <page.component key={index} />
