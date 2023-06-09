@@ -1,11 +1,11 @@
 // import logo from "./logo.svg";
-import "./App.css";
-import HooksApp from "./Hooks/HooksApp.tsx";
+import './App.css';
+import MainApp from './MainApp/MainApp';
 
 function Header(props) {
   return (
-    <div className="App">
-      <header className="App-header">
+    <div className='App'>
+      <header className='App-header'>
         {/* <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
@@ -26,7 +26,7 @@ function Header(props) {
 function App() {
   return (
     <Header>
-      <HooksApp />
+      <MainApp />
     </Header>
   );
 }

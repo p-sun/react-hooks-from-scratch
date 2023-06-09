@@ -2,7 +2,8 @@
  * Two ways to make a react component tree -- with JSX or with React.createElement.
  */
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { RenderCounter } from '../MainApp/RenderCounter';
 
 export function ReactBasics1() {
   console.log("(1) ReactBasics1's render");
@@ -11,10 +12,12 @@ export function ReactBasics1() {
     console.log(r);
   };
   return (
-    <div ref={logRef}>
-      <Toggle labels={["YUP", "NOPE"]} />
-      <Toggle labels={["ON", "OFF"]} />
-    </div>
+    <RenderCounter>
+      <div ref={logRef}>
+        <Toggle labels={['YUP', 'NOPE']} />
+        <Toggle labels={['ON', 'OFF']} />
+      </div>
+    </RenderCounter>
   );
 }
 
@@ -26,24 +29,28 @@ export function ReactBasics2() {
     console.log("(4) ReactBasics2's ref:");
     console.log(r);
     /*
-       <div style="background-color: blue;">
+       <div style="background-color: cyan;">
           <div>yes</div>
           ‹div>true</div>
        </div>
     */
   };
-  return React.createElement("div", {
-    style: { backgroundColor: "blue" },
-    ref: logRef,
-    children: [
-      React.createElement(Toggle, { key: "a", labels: ["YUP", "NOPE"] }),
-      React.createElement(Toggle, { key: "b", labels: ["ON", "OFF"] }),
-    ],
-  });
+  return (
+    <RenderCounter>
+      {React.createElement('div', {
+        style: { backgroundColor: 'cyan' },
+        ref: logRef,
+        children: [
+          React.createElement(Toggle, { key: 'a', labels: ['YUP', 'NOPE'] }),
+          React.createElement(Toggle, { key: 'b', labels: ['ON', 'OFF'] }),
+        ],
+      })}
+    </RenderCounter>
+  );
 }
 
 function Toggle(props: { labels: [string, string] }) {
-  console.log("(2 & 3 & 5+) Toggle render | labels: ", props.labels);
+  console.log('(2 & 3 & 5+) Toggle render | labels: ', props.labels);
 
   const [on, setOn] = useState(true);
 
