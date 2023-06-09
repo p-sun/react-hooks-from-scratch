@@ -1,5 +1,5 @@
 import { HooksFromScratch } from '../Pages/HooksFromScratch';
-// import { ProductsList } from './ProductsList';
+import { ProductsList } from '../Pages/ProductsList';
 import { ReactBasics1, ReactBasics2 } from '../Pages/ReactBasics';
 import { useState } from 'react';
 import { Hooks1UseState } from '../Pages/Hooks1UseState';
@@ -17,8 +17,8 @@ const pages: Page[] = [
   { title: 'ReactBasics1', component: ReactBasics1 },
   { title: 'ReactBasics2', component: ReactBasics2 },
 
-  //   { title: 'ProductsList', component: ProductsList },
   { title: 'HooksFromScratch', component: HooksFromScratch },
+  { title: 'ProductsList', component: ProductsList },
 ];
 
 function PrevNextButtons(props: {
