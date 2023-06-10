@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { RenderCounter } from '../MainApp/RenderCounter';
 
 // `useState_` is a fake implementation of useState, to help us understand how it works.
-// Only track state for one component in this example, not all components like React.
 let _index = -999;
+// Only track state for one component in this example.
 let _allStates: { [nodeId: string]: unknown[] } = {};
 
-export function Hooks1UseStateFake() {
+export default function Hooks1UseStateFake() {
   _allStates = {}; // Set in React infra
 
   return (

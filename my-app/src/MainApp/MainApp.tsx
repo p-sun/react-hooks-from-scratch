@@ -3,22 +3,53 @@ import { ProductsList } from '../Pages/ProductsList';
 import { ReactBasics1, ReactBasics2 } from '../Pages/ReactBasics';
 import { useState } from 'react';
 import { Hooks1UseState } from '../Pages/Hooks1UseState';
-import { Hooks1UseStateFake } from '../Pages/Hooks1UseStateFake';
+import Hooks1UseStateFake from '../Pages/Hooks1UseStateFake';
+import Hooks2UseRef from '../Pages/Hooks2UseRef';
 
 type Page = {
   title: string;
+  description?: string;
   component: () => JSX.Element;
 };
 
 const pages: Page[] = [
-  { title: 'Hooks - real useState', component: Hooks1UseState },
-  { title: 'Hooks - my useState', component: Hooks1UseStateFake },
-
-  { title: 'ReactBasics1', component: ReactBasics1 },
-  { title: 'ReactBasics2', component: ReactBasics2 },
+  {
+    title: 'Hooks - real useState',
+    description:
+      'Each component has two useStates. When either state is updated, the component re-renders.',
+    component: Hooks1UseState,
+  },
+  {
+    title: 'Hooks - useState from scratch',
+    description: `Reimplement useState to understand how it works.
+    Note we only track state for one component in this example, whereas React 
+    would attach an array of states to each component that calls useState.`,
+    component: Hooks1UseStateFake,
+  },
+  {
+    title: 'Hooks - useRef',
+    description: `ButtonA presses ButtonB. When ButtonB is pressed, it updates its text to
+    count how many times it was clicked.`,
+    component: Hooks2UseRef,
+  },
+  {
+    title: 'ReactBasics1',
+    description: 'A simple React component with two nested children, using JSX.',
+    component: ReactBasics1,
+  },
+  {
+    title: 'ReactBasics2',
+    description:
+      'A simple React component with with two nested children, using React.createElement.',
+    component: ReactBasics2,
+  },
 
   { title: 'HooksFromScratch', component: HooksFromScratch },
-  { title: 'ProductsList', component: ProductsList },
+  {
+    title: 'ProductsList',
+    description: 'A product list where items can be filtered by text or by a checkbox.',
+    component: ProductsList,
+  },
 ];
 
 function PrevNextButtons(props: { max: number; onChange: (count: number) => void }) {
@@ -77,6 +108,8 @@ export default function MainApp() {
       <PrevNextButtons max={pages.length} onChange={setIndex} />
       <br />
       <page.component key={index} />
+      <br />
+      <div style={{ textAlign: 'left', fontSize: 'medium' }}>{page.description}</div>
     </>
   );
 }
