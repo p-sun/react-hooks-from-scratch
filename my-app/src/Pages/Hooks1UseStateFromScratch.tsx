@@ -46,7 +46,6 @@ function DoubleCounter(props: { path: string }) {
 
 function useState_<S>(initialState: S, key: string): [S, (newState: S) => void] {
   _index++;
-  debugger;
 
   const nodeId = getReactPath(key);
   const currentState = getStateAtReactPath<S>(nodeId, _index);

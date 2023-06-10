@@ -1,9 +1,10 @@
-import { HooksFromScratch } from '../Pages/HooksFromScratch';
 import { ProductsList } from '../Pages/ProductsList';
 import { ReactBasics1, ReactBasics2 } from '../Pages/ReactBasics';
 import { useState } from 'react';
 import Hooks1UseState from '../Pages/Hooks1UseState';
 import Hooks2UseRef from '../Pages/Hooks2UseRef';
+import Hooks3UseMemo from '../Pages/Hooks3UseMemo';
+import Hooks3UseMemoTodo from '../Pages/Hooks3UseMemoToDoList';
 
 type Page = {
   title: string;
@@ -28,6 +29,17 @@ const pages: Page[] = [
     component: Hooks2UseRef,
   },
   {
+    title: 'Hooks - useMemo Todo List',
+    description: ``,
+    component: Hooks3UseMemoTodo,
+  },
+  {
+    title: 'Hooks - useMemo',
+    description: ``,
+    component: Hooks3UseMemo,
+  },
+
+  {
     title: 'ReactBasics1',
     description: 'A simple React component with two nested children, using JSX.',
     component: ReactBasics1,
@@ -39,7 +51,6 @@ const pages: Page[] = [
     component: ReactBasics2,
   },
 
-  { title: 'HooksFromScratch', component: HooksFromScratch },
   {
     title: 'ProductsList',
     description: 'A product list where items can be filtered by text or by a checkbox.',
@@ -49,7 +60,8 @@ const pages: Page[] = [
 
 function PrevNextButtons(props: { max: number; onChange: (count: number) => void }) {
   const { max, onChange } = props;
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(2);
+
   const goTo = (increment: number) => () => {
     const newCount = count + increment;
     setCount(newCount);
