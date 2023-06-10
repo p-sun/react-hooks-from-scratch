@@ -1,7 +1,19 @@
 import { useState } from 'react';
 import { RenderCounter } from '../MainApp/RenderCounter';
+import { Hooks1UseStateFake } from './Hooks1UseStateFromScratch';
 
-export function Hooks1UseState() {
+export default function App() {
+  return (
+    <>
+      Real useState:
+      <Hooks1UseState />
+      Reimplemented useState:
+      <Hooks1UseStateFake />
+    </>
+  );
+}
+
+function Hooks1UseState() {
   return (
     <RenderCounter>
       <DoubleCounter />

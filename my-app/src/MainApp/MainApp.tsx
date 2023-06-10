@@ -2,8 +2,7 @@ import { HooksFromScratch } from '../Pages/HooksFromScratch';
 import { ProductsList } from '../Pages/ProductsList';
 import { ReactBasics1, ReactBasics2 } from '../Pages/ReactBasics';
 import { useState } from 'react';
-import { Hooks1UseState } from '../Pages/Hooks1UseState';
-import Hooks1UseStateFake from '../Pages/Hooks1UseStateFake';
+import Hooks1UseState from '../Pages/Hooks1UseState';
 import Hooks2UseRef from '../Pages/Hooks2UseRef';
 
 type Page = {
@@ -14,17 +13,13 @@ type Page = {
 
 const pages: Page[] = [
   {
-    title: 'Hooks - real useState',
-    description:
-      'Each component has two useStates. When either state is updated, the component re-renders.',
+    title: 'Hooks - useState',
+    description: `Each component has two useStates. When either state is updated, the component re-renders.
+      
+    Bottom is an reimplementation of useState. Note we only track state
+      for one component in this example, whereas React would attach an array of states
+      to each component that calls useState.`,
     component: Hooks1UseState,
-  },
-  {
-    title: 'Hooks - useState from scratch',
-    description: `Reimplement useState to understand how it works.
-    Note we only track state for one component in this example, whereas React 
-    would attach an array of states to each component that calls useState.`,
-    component: Hooks1UseStateFake,
   },
   {
     title: 'Hooks - useRef',

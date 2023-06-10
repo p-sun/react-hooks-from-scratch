@@ -6,7 +6,7 @@ let _index = -999;
 // Only track state for one component in this example.
 let _allStates: { [nodeId: string]: unknown[] } = {};
 
-export default function Hooks1UseStateFake() {
+export function Hooks1UseStateFake() {
   _allStates = {}; // Set in React infra
 
   return (
