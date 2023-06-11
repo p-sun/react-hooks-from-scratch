@@ -3,6 +3,7 @@ import { ReactBasics1, ReactBasics2 } from '../Pages/ReactBasics';
 import { useState } from 'react';
 import Hooks1UseState from '../Pages/Hooks1UseState';
 import Hooks2UseRef from '../Pages/Hooks2UseRef';
+import Hooks2UseRefStopWatch from '../Pages/Hooks2UseRefStopwatch';
 import Hooks3UseMemo from '../Pages/Hooks3UseMemo';
 import Hooks3UseMemoTodo from '../Pages/Hooks3UseMemoToDoList';
 
@@ -16,7 +17,6 @@ const pages: Page[] = [
   {
     title: 'Hooks - useState',
     description: `Each component has two useStates. When either state is updated, the component re-renders.
-      
     Bottom is an reimplementation of useState. Note we only track state
       for one component in this example, whereas React would attach an array of states
       to each component that calls useState.`,
@@ -40,6 +40,17 @@ const pages: Page[] = [
   },
 
   {
+    title: 'Combining Hooks - Stopwatch',
+    description: `Use useRef to store the intervalId to stop the stopwatch.`,
+    component: Hooks2UseRefStopWatch,
+  },
+  {
+    title: 'ProductsList',
+    description: 'A product list where items can be filtered by text or by a checkbox.',
+    component: ProductsList,
+  },
+
+  {
     title: 'ReactBasics1',
     description: 'A simple React component with two nested children, using JSX.',
     component: ReactBasics1,
@@ -49,12 +60,6 @@ const pages: Page[] = [
     description:
       'A simple React component with with two nested children, using React.createElement.',
     component: ReactBasics2,
-  },
-
-  {
-    title: 'ProductsList',
-    description: 'A product list where items can be filtered by text or by a checkbox.',
-    component: ProductsList,
   },
 ];
 
