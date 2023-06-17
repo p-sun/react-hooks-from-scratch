@@ -1,6 +1,21 @@
 import { useState } from 'react';
 
-function FilterableProductTable({ products }) {
+type Product = {
+  category: string;
+  price: string;
+  stocked: boolean;
+  name: string;
+};
+const ALL_PRODUCTS: Product[] = [
+  { category: 'Fruits', price: '$1', stocked: true, name: 'Apple' },
+  { category: 'Fruits', price: '$1', stocked: true, name: 'Dragonfruit' },
+  { category: 'Fruits', price: '$2', stocked: false, name: 'Passionfruit' },
+  { category: 'Vegetables', price: '$2', stocked: true, name: 'Spinach' },
+  { category: 'Vegetables', price: '$4', stocked: false, name: 'Pumpkin' },
+  { category: 'Vegetables', price: '$1', stocked: true, name: 'Peas' },
+];
+
+function FilterableProductTable(props: { products: Product[] }) {
   const [filterText, setFilterText] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
 
@@ -12,12 +27,18 @@ function FilterableProductTable({ products }) {
         onFilterTextChange={setFilterText}
         onInStockOnlyChange={setInStockOnly}
       />
-      <ProductTable products={products} filterText={filterText} inStockOnly={inStockOnly} />
+      <ProductTable products={props.products} filterText={filterText} inStockOnly={inStockOnly} />
     </div>
   );
 }
 
-function SearchBar({ filterText, inStockOnly, onFilterTextChange, onInStockOnlyChange }) {
+function SearchBar(props: {
+  filterText: string;
+  inStockOnly: boolean;
+  onFilterTextChange: (filterText: string) => void;
+  onInStockOnlyChange: (inStockOnly: boolean) => void;
+}) {
+  const { filterText, inStockOnly, onFilterTextChange, onInStockOnlyChange } = props;
   return (
     <form>
       <input
@@ -38,9 +59,10 @@ function SearchBar({ filterText, inStockOnly, onFilterTextChange, onInStockOnlyC
   );
 }
 
-function ProductTable({ products, filterText, inStockOnly }) {
-  const rows = [];
-  let lastCategory = null;
+function ProductTable(props: { products: Product[]; filterText: string; inStockOnly: boolean }) {
+  const { products, filterText, inStockOnly } = props;
+  const rows: JSX.Element[] = [];
+  let lastCategory: string | undefined;
 
   products.forEach((product) => {
     if (product.name.toLowerCase().indexOf(filterText.toLowerCase()) === -1) {
@@ -69,17 +91,18 @@ function ProductTable({ products, filterText, inStockOnly }) {
   );
 }
 
-function ProductCategoryRow({ category }) {
+function ProductCategoryRow(props: { category: string }) {
   return (
     <tr>
-      <th colSpan='2' style={{ textAlign: 'center', color: 'lightskyblue' }}>
-        {category}
+      <th colSpan={2} style={{ textAlign: 'center', color: 'lightskyblue' }}>
+        {props.category}
       </th>
     </tr>
   );
 }
 
-function ProductRow({ product }) {
+function ProductRow(props: { product: Product }) {
+  const { product } = props;
   const name = product.stocked ? (
     product.name
   ) : (
@@ -94,15 +117,6 @@ function ProductRow({ product }) {
   );
 }
 
-const PRODUCTS = [
-  { category: 'Fruits', price: '$1', stocked: true, name: 'Apple' },
-  { category: 'Fruits', price: '$1', stocked: true, name: 'Dragonfruit' },
-  { category: 'Fruits', price: '$2', stocked: false, name: 'Passionfruit' },
-  { category: 'Vegetables', price: '$2', stocked: true, name: 'Spinach' },
-  { category: 'Vegetables', price: '$4', stocked: false, name: 'Pumpkin' },
-  { category: 'Vegetables', price: '$1', stocked: true, name: 'Peas' },
-];
-
 export function ProductsList() {
-  return <FilterableProductTable products={PRODUCTS} />;
+  return <FilterableProductTable products={ALL_PRODUCTS} />;
 }

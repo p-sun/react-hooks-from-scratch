@@ -5,7 +5,7 @@ import { RenderCounter } from '../MainApp/RenderCounter';
 export default function Stopwatch() {
   const [startTime, setStartTime] = useState(0);
   const [now, setNow] = useState(0);
-  const intervalRef = useRef(null as any);
+  const intervalRef = useRef(undefined as undefined | NodeJS.Timer);
 
   function handleStart() {
     setStartTime(Date.now());
