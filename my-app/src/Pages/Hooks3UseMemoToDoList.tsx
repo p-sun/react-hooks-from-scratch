@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useReducer, useMemo, useState, useRef } from 'react';
 import { RenderCounter } from '../MainApp/RenderCounter';
 
 export default function App() {
@@ -13,17 +13,17 @@ export default function App() {
   );
 }
 
-// Hooks Components -----------------------------
 function TodoList(props: { isDark: boolean; showDone: boolean }) {
   const { showDone, isDark } = props;
-  const { todos, setLength, refresh } = useTodos();
+
+  const { todos, length, setLength, refresh, toggleTodo, deleteTodo } = useTodos();
   const filteredTodos = useMemo(() => slowFilterTodos(todos, showDone), [todos, showDone]);
 
   return (
     <RenderCounter>
       <input
         type='number'
-        value={todos.length}
+        value={length}
         onChange={(e) => {
           setLength(parseInt(e.target.value));
         }}
@@ -31,24 +31,82 @@ function TodoList(props: { isDark: boolean; showDone: boolean }) {
       <button onClick={refresh}>Regenerate todos (SLOW)</button>
       <div>{todos.length} Todos:</div>
       <ul style={{ backgroundColor: isDark ? 'black' : undefined }}>
-        {filteredTodos.map((todo) => (
-          <li key={todo.id}>{todo.isDone ? <s>{todo.text}</s> : todo.text}</li>
-        ))}
+        {filteredTodos.map((todo) =>
+          TodoListItem({
+            todo,
+            onToggle: () => toggleTodo(todo.id),
+            onDelete: () => deleteTodo(todo.id),
+          })
+        )}
       </ul>
     </RenderCounter>
   );
 }
 
-// A custom hook combining useState and useMemo.
-function useTodos() {
-  const [length, setLength] = useState(10);
-  const [dirtyBit, setDirtyBit] = useState(false);
-  const todos = useMemo(() => createTodos(length), [length, dirtyBit]);
+/* -------------------------------------------------------------------------- */
+/*                                 Custom Hook                                */
+/* -------------------------------------------------------------------------- */
 
-  return { todos, setLength, refresh: () => setDirtyBit(!dirtyBit) };
+function useTodos() {
+  const lengthRef = useRef(10);
+  const length = lengthRef.current;
+
+  const [todos, dispatch] = useReducer(todosReducer, length, createTodos);
+
+  return {
+    todos,
+    length,
+    setLength: (newLength: number) => {
+      lengthRef.current = newLength;
+      dispatch({ type: 'refresh', length: newLength });
+    },
+    refresh: () => dispatch({ type: 'refresh', length }),
+    deleteTodo: (id: number) => {
+      dispatch({ type: 'delete', id });
+    },
+    toggleTodo: (id: number) => {
+      dispatch({ type: 'toggle', id });
+    },
+  };
 }
 
-// Pure component, no hooks ----------------------------
+function todosReducer(
+  state: Todo[],
+  action:
+    | { type: 'refresh'; length: number }
+    | { type: 'delete'; id: number }
+    | { type: 'toggle'; id: number }
+) {
+  switch (action.type) {
+    case 'refresh':
+      return createTodos(action.length);
+    case 'delete':
+      return state.filter((todo) => todo.id !== action.id);
+    case 'toggle':
+      return state.map((todo) =>
+        todo.id === action.id ? { ...todo, isDone: !todo.isDone } : todo
+      );
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Pure components, no hooks                         */
+/* -------------------------------------------------------------------------- */
+
+function TodoListItem(props: { todo: Todo; onToggle: () => void; onDelete: () => void }) {
+  const { todo, onDelete, onToggle } = props;
+
+  const todoText = todo.isDone ? <s>{todo.text}</s> : todo.text;
+  return (
+    <div key={todo.id} style={{ display: 'flex' }}>
+      <li>{todoText}</li>
+      <div style={{ flexGrow: 1 }} />
+      <button onClick={onToggle}>Toggle</button>
+      <button onClick={onDelete}>Delete</button>
+    </div>
+  );
+}
+
 function Input(props: {
   config: {
     isDark: boolean;
@@ -79,8 +137,11 @@ function Input(props: {
   );
 }
 
-// Todo List -----------------------------
-type TodoItem = {
+/* -------------------------------------------------------------------------- */
+/*                               Todo List Model                              */
+/* -------------------------------------------------------------------------- */
+
+type Todo = {
   id: number;
   text: string;
   isDone: boolean;
@@ -90,13 +151,13 @@ const createTodos = (length: number) => {
   console.log(`Creating ${length} new todos.`);
 
   return Array.from({ length }, (_, i) => ({
-    id: i,
+    id: i + 1,
     text: 'Todo ' + (i + 1),
     isDone: Math.random() > 0.5,
   }));
 };
 
-function slowFilterTodos(todos: TodoItem[], showDone: boolean) {
+function slowFilterTodos(todos: Todo[], showDone: boolean) {
   console.log(
     `[ARTIFICIALLY SLOW] Filtering ${todos.length} todos ${
       showDone ? 'with' : 'without'
