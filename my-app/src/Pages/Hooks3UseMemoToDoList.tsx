@@ -31,13 +31,14 @@ function TodoList(props: { isDark: boolean; showDone: boolean }) {
       <button onClick={refresh}>Regenerate todos (SLOW)</button>
       <div>{todos.length} Todos:</div>
       <ul style={{ backgroundColor: isDark ? 'black' : undefined }}>
-        {filteredTodos.map((todo) =>
-          TodoListItem({
-            todo,
-            onToggle: () => toggleTodo(todo.id),
-            onDelete: () => deleteTodo(todo.id),
-          })
-        )}
+        {filteredTodos.map((todo) => (
+          <TodoListItem
+            key={todo.id}
+            todo={todo}
+            onToggle={() => toggleTodo(todo.id)}
+            onDelete={() => deleteTodo(todo.id)}
+          />
+        ))}
       </ul>
     </RenderCounter>
   );
