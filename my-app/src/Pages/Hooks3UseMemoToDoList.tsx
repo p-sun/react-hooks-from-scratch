@@ -16,8 +16,8 @@ export default function App() {
 function TodoList(props: { isDark: boolean; showDone: boolean }) {
   const { showDone, isDark } = props;
 
-  const { todos, length, setLength, refresh, toggleTodo, deleteTodo } = useTodos();
-  const filteredTodos = useMemo(() => slowFilterTodos(todos, showDone), [todos, showDone]);
+  const { todos, filteredTodos, length, setLength, refresh, toggleTodo, deleteTodo } =
+    useTodos(showDone);
 
   return (
     <RenderCounter>
@@ -48,14 +48,16 @@ function TodoList(props: { isDark: boolean; showDone: boolean }) {
 /*                                 Custom Hook                                */
 /* -------------------------------------------------------------------------- */
 
-function useTodos() {
+function useTodos(showDone: boolean) {
   const lengthRef = useRef(10);
   const length = lengthRef.current;
 
   const [todos, dispatch] = useReducer(todosReducer, length, createTodos);
+  const filteredTodos = useMemo(() => slowFilterTodos(todos, showDone), [todos, showDone]);
 
   return {
     todos,
+    filteredTodos,
     length,
     setLength: (newLength: number) => {
       lengthRef.current = newLength;
