@@ -6,6 +6,7 @@ import Hooks2UseRef from '../Pages/Hooks2UseRef';
 import Hooks2UseRefStopWatch from '../Pages/Hooks2UseRefStopwatch';
 import Hooks3UseMemo from '../Pages/Hooks3UseMemo';
 import Hooks3UseMemoTodo from '../Pages/Hooks3UseMemoToDoList';
+import SudokuGame from '../Sudoku/SudokuGame';
 
 type Page = {
   title: string;
@@ -14,6 +15,7 @@ type Page = {
 };
 
 const pages: Page[] = [
+  { title: 'Sudoku', component: SudokuGame },
   {
     title: 'Hooks - useState',
     description: `Each component has two useStates. When either state is updated, the component re-renders.
@@ -29,7 +31,7 @@ const pages: Page[] = [
     component: Hooks2UseRef,
   },
   {
-    title: 'Hooks - useMemo Todo List',
+    title: 'Hooks - Todo List with Hooks',
     description: ``,
     component: Hooks3UseMemoTodo,
   },
