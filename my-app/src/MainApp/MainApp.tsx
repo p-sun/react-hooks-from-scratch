@@ -65,9 +65,13 @@ const pages: Page[] = [
   },
 ];
 
-function PrevNextButtons(props: { max: number; onChange: (count: number) => void }) {
-  const { max, onChange } = props;
-  const [count, setCount] = useState(2);
+function PrevNextButtons(props: {
+  max: number;
+  initialIndex: number;
+  onChange: (count: number) => void;
+}) {
+  const { max, initialIndex, onChange } = props;
+  const [count, setCount] = useState(initialIndex);
 
   const goTo = (increment: number) => () => {
     const newCount = count + increment;
@@ -119,7 +123,7 @@ export default function MainApp() {
   return (
     <>
       <div style={{ textAlign: 'center', fontSize: 'larger' }}>{page.title}</div>
-      <PrevNextButtons max={pages.length} onChange={setIndex} />
+      <PrevNextButtons max={pages.length} initialIndex={index} onChange={setIndex} />
       <br />
       <page.component key={index} />
       <br />

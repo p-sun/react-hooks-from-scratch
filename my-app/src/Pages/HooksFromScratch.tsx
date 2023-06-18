@@ -93,6 +93,9 @@ function RandomNumberList(props: {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*                             Hooks from scratch                             */
+/* -------------------------------------------------------------------------- */
 export function useRef_<S>(d: S): { current: S } {
   return useState({ current: d })[0];
 }
