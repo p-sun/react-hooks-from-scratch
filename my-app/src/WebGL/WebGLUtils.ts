@@ -36,13 +36,12 @@ export function compileShader(
   return shader;
 }
 
-export function useProgram(gl: WebGL2RenderingContext, vs: WebGLShader, fs: WebGLShader) {
+export function linkProgram(gl: WebGL2RenderingContext, vs: WebGLShader, fs: WebGLShader) {
   const program = gl.createProgram()!;
 
   gl.attachShader(program, vs);
   gl.attachShader(program, fs);
   gl.linkProgram(program);
-  gl.useProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     console.error(gl.getProgramInfoLog(program));
