@@ -7,6 +7,7 @@ import Hooks2UseRefStopWatch from '../Pages/Hooks2UseRefStopwatch';
 import Hooks3UseMemo from '../Pages/Hooks3UseMemo';
 import Hooks3UseMemoTodo from '../Pages/Hooks3UseMemoToDoList';
 import SudokuGame from '../Sudoku/SudokuGame';
+import WebGLTriangle from '../WebGL/WebGLTriangle';
 
 type Page = {
   title: string;
@@ -15,6 +16,11 @@ type Page = {
 };
 
 const pages: Page[] = [
+  {
+    title: 'WebGL Triangle',
+    description: 'A vertex and fragment shader written in WebGL',
+    component: WebGLTriangle,
+  },
   { title: 'Sudoku', component: SudokuGame },
   {
     title: 'Hooks - useState',
