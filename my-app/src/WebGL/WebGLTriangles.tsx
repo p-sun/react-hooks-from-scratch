@@ -5,13 +5,12 @@ import * as webGL from './WebGLUtils';
 // prettier-ignore
 function drawDoubleTriangles(canvas: HTMLCanvasElement) {
   const vertices = [
-  -0.8,  0.4, 0,
-   0.8,  0.4, 0,
-   0.8, -0.4, 0,
-  -0.8,  0.4, 0,
-   0.8, -0.4, 0,
-  -0.8, -0.4, 0
-  ];
+  -0.8,  0.4,
+   0.8,  0.4,
+   0.8, -0.4,
+  -0.8,  0.4,
+   0.8, -0.4,
+  -0.8, -0.4];
 
   const colors = [
   1, 0, 0, 1,
@@ -19,31 +18,31 @@ function drawDoubleTriangles(canvas: HTMLCanvasElement) {
   0, 0, 1, 1,
   1, 0, 0, 1,
   0, 0, 1, 1,
-  1, 0, 1, 1
-  ];
+  1, 0, 1, 1];
 
-  const vertexShader = `
-  attribute vec3 pos;
-  attribute vec4 clr;
+  const vertexShader = `# version 300 es
+  in vec2 pos;
+  in vec4 clr;
 
   uniform mat4 trans;
 
-  varying vec4 vcolor;
+  out vec4 vcolor;
 
   void main()
   {
-      gl_Position = trans * vec4(pos,1);
+      gl_Position = trans * vec4(pos,0,1); // vec4(x,y,z,w)
       vcolor = clr;
   }
   `;
 
-  const fragmentShader = `
+  const fragmentShader = `# version 300 es
   precision mediump float;
-  varying vec4 vcolor;
-  
+  in vec4 vcolor;
+  out vec4 color;
+
   void main()
   {
-      gl_FragColor = vcolor;
+    color = vcolor;
   }
   `;
 
@@ -68,14 +67,14 @@ function drawDoubleTriangles(canvas: HTMLCanvasElement) {
 		1,0,0,0,
 		0,1,0,0,
 		0,0,1,0,
-		0,0,0,1 ];
+		0,0,0,1];
   gl.useProgram(program);
   gl.uniformMatrix4fv(m, false, matrix);
 
-  /* ---------------------- Set Vertex Buffer Attributes ---------------------- */
+  /* ---------------------- Set Vertex Shader Attributes ---------------------- */
   const p = gl.getAttribLocation(program, 'pos');
   gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer);
-  gl.vertexAttribPointer(p, 3, gl.FLOAT, false, 0, 0); // Pull out 3 FLOATs per iteration
+  gl.vertexAttribPointer(p, 2, gl.FLOAT, false, 0, 0); // Pull out 2 FLOATs per iteration
   gl.enableVertexAttribArray(p);
 
   const c = gl.getAttribLocation(program, 'clr');
