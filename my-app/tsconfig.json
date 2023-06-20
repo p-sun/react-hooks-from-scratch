@@ -4,6 +4,7 @@
     // "lib": ["dom", "dom.iterable", "esnext"],
     // "skipLibCheck": true,
     // "esModuleInterop": true,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -13,7 +14,9 @@
     // "resolveJsonModule": true,
     // "isolatedModules": true,
     // "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "outDir": "outTarget"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["outTarget"]
 }
