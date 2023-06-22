@@ -4,12 +4,12 @@ import * as webGL from './WebGLUtils';
 // prettier-ignore
 function getMeshConstants() {
   const vertices = [
-  -0.8,  0.4,
-   0.8,  0.4,
-   0.8, -0.4,
-  -0.8,  0.4,
-   0.8, -0.4,
-  -0.8, -0.4];
+  -0.8,  0.4, 0,
+   0.8,  0.4, 0,
+   0.8, -0.4, 0,
+  -0.8,  0.4, 0,
+   0.8, -0.4, 0,
+  -0.8, -0.4, 0];
 
   const colors = [
   1, 0, 0, 1,
@@ -30,7 +30,7 @@ function getMeshConstants() {
 
 function getShaderSources() {
   const vertexShader = `# version 300 es
-  in vec2 pos;
+  in vec3 pos;
   in vec4 clr;
 
   uniform mat4 trans;
@@ -39,7 +39,7 @@ function getShaderSources() {
 
   void main()
   {
-      gl_Position = trans * vec4(pos,0,1); // vec4(x,y,z,w)
+      gl_Position = trans * vec4(pos,1); // vec4(x,y,z,w)
       vcolor = clr;
   }
   `;
@@ -84,7 +84,7 @@ function draw(canvas: HTMLCanvasElement) {
   /* ---------------------- Set Vertex Shader Attributes ---------------------- */
   const p = gl.getAttribLocation(program, 'pos');
   gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer);
-  gl.vertexAttribPointer(p, 2, gl.FLOAT, false, 0, 0); // Pull out 2 FLOATs per iteration
+  gl.vertexAttribPointer(p, 3, gl.FLOAT, false, 0, 0); // Pull out 3 FLOATs per iteration
   gl.enableVertexAttribArray(p);
 
   const c = gl.getAttribLocation(program, 'clr');
