@@ -8,6 +8,7 @@ import Hooks3UseMemo from '../Pages/Hooks3UseMemo';
 import Hooks3UseMemoTodo from '../Pages/Hooks3UseMemoToDoList';
 import SudokuGame from '../Sudoku/SudokuGame';
 import WebGLTriangles from '../WebGL/WebGLTriangles';
+import WebGLSphere from '../WebGL/WebGLSphere';
 
 type Page = {
   title: string;
@@ -16,6 +17,11 @@ type Page = {
 };
 
 const pages: Page[] = [
+  {
+    title: 'WebGL Sphere',
+    description: 'A vertex and fragment shader written in WebGL that draws two triangles.',
+    component: WebGLSphere,
+  },
   {
     title: 'WebGL Triangle',
     description: 'A vertex and fragment shader written in WebGL that draws two triangles.',

@@ -58,8 +58,6 @@ function getShaderSources() {
   return { vertexShader, fragmentShader };
 }
 
-// Refactored from https://www.youtube.com/watch?v=je_PhVKJYng
-// Also similar to https://www.youtube.com/watch?v=kB0ZVUrI4Aw&list=PLjcVFFANLS5zH_PeKC6I8p0Pt1hzph_rt
 function draw(canvas: HTMLCanvasElement) {
   const { vertices, colors, vertexShader, fragmentShader, matrix } = getMeshConstants();
 
