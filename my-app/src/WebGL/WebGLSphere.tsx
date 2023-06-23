@@ -7,7 +7,7 @@ import { mat4 } from 'gl-matrix';
 /*                                   Matrix                                   */
 /* -------------------------------------------------------------------------- */
 // prettier-ignore
-function getMatrixConstants(canvas: HTMLCanvasElement) {
+function getMatrixConstants(canvas: HTMLCanvasElement, lookAtDir: [number, number, number]) {
   const fieldOfView = (45 * Math.PI) / 180; // in radians
   const aspect = canvas.clientWidth / canvas.clientHeight;
   const zNear = .1;
@@ -16,47 +16,47 @@ function getMatrixConstants(canvas: HTMLCanvasElement) {
   mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
   
 	const viewMatrix = mat4.create();
-  mat4.lookAt(viewMatrix, [0, 0, -4], [0, 0, 0], [0, 1, 0])
+  mat4.lookAt(viewMatrix, lookAtDir, [0, 0, 0], [0, 1, 0])
 
   return { projectionMatrix, viewMatrix};
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                Sphere Mesh                                 */
+/* -------------------------------------------------------------------------- */
 
 type Drawable = {
   vertices: number[];
   colors: number[];
   drawArraysType: GLenum;
-  length: number;
 };
 
-/* -------------------------------------------------------------------------- */
-/*                                Sphere Mesh                                 */
-/* -------------------------------------------------------------------------- */
 // prettier-ignore
-function getSphereMeshConstants(length: number) {
-  let vertices: number[] = [];
-  let colors: number[] = [];
-  const sphereRadius = 0.8
-
+function getSphereMesh(gl: WebGL2RenderingContext, sphereRadius: number, length: number) {
    /* ------------------------ First layer of triangles ------------------------ */
   const firstAngleRad = Math.PI/2 - 1/length * Math.PI
   const circleVertices = verticesForCircle(sphereRadius, firstAngleRad, length)
-  vertices.push(...[0, sphereRadius, 0])
-  colors.push(...Color.rainbow(0).toArray4()) // red
+
+  let firstLayer: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_FAN}
+  firstLayer.vertices.push(...[0, sphereRadius, 0])
+  firstLayer.colors.push(...Color.rainbow(0).toArray4()) // red
   for (let i = 0; i < length + 1; i++) {
-    vertices.push(...circleVertices[i % length])
-    colors.push(...Color.rainbow((i % length)/length).toArray4()) 
+    firstLayer.vertices.push(...circleVertices[i % length])
+    firstLayer.colors.push(...Color.rainbow((i % length)/length).toArray4()) 
   }
 
    /* ------------------------ Last layer of triangles ------------------------ */
-  vertices.push(...[0, -sphereRadius, 0])
-  colors.push(...Color.rainbow(0).toArray4()) // red
+   let lastLayer: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_FAN}
+   lastLayer.vertices.push(...[0, -sphereRadius, 0])
+   lastLayer.colors.push(...Color.rainbow(0).toArray4()) // red
   for (let i = 0; i < length + 1; i++) {
      const v = circleVertices[i % length]
-     vertices.push(v[0], -v[1], v[2])
-     colors.push(...Color.rainbow((i % length)/length).toArray4()) 
+     lastLayer.vertices.push(v[0], -v[1], v[2])
+     lastLayer.colors.push(...Color.rainbow((i % length)/length).toArray4()) 
   }
 
   /* ------------------------ Middle layer of triangles ----------------------- */
+  let middleLayers: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_STRIP}
   for (let i = 1; i < length - 1; i++) { // For each vertical layer
     const angleYRad = Math.PI/2 - i/length * Math.PI
     const currentCircle = verticesForCircle(sphereRadius, angleYRad, length)
@@ -65,14 +65,14 @@ function getSphereMeshConstants(length: number) {
     const nextCircle = verticesForCircle(sphereRadius, nextAngleYRad, length)
 
     for (let j = 0; j < length + 1; j++) { // For each horizontal angle
-      vertices.push(...currentCircle[j % length])
-      colors.push(...Color.rainbow((j % length)/length).toArray4())
-      vertices.push(...nextCircle[j % length])
-      colors.push(...Color.rainbow(((j + 1) % length)/length).toArray4())
+      middleLayers.vertices.push(...currentCircle[j % length])
+      middleLayers.colors.push(...Color.rainbow((j % length)/length).toArray4())
+      middleLayers.vertices.push(...nextCircle[j % length])
+      middleLayers.colors.push(...Color.rainbow((j % length)/length).toArray4())
     }
   }
 
-  return {vertices, colors};
+  return [firstLayer, lastLayer, middleLayers];
 }
 
 function verticesForCircle(sphereRadius: number, angleRadXY: number, length: number) {
@@ -132,10 +132,15 @@ function getShaderSources() {
 /*                                    Draw                                    */
 /* -------------------------------------------------------------------------- */
 function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
+  const SUBDIVISION = 10;
+  const SPHERE_RADIUS = 0.8;
+  const LOOKAT_DIR: [number, number, number] = [0, 1, -3];
+
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
-  const SUBDIVISION = 6;
-  const { vertices, colors } = getSphereMeshConstants(SUBDIVISION);
-  const { projectionMatrix, viewMatrix } = getMatrixConstants(canvas);
+  const sphereDrawables = getSphereMesh(gl, SPHERE_RADIUS, SUBDIVISION);
+  const vertices = sphereDrawables.map((d) => d.vertices).flat();
+  const colors = sphereDrawables.map((d) => d.colors).flat();
+  const { projectionMatrix, viewMatrix } = getMatrixConstants(canvas, LOOKAT_DIR);
   const { vertexShader, fragmentShader } = getShaderSources();
 
   /* ----------------------------- Create Program ----------------------------- */
@@ -176,13 +181,12 @@ function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   gl.enableVertexAttribArray(c);
 
   /* ------------------------------ Draw Scene ------------------------------- */
-  gl.drawArrays(gl.TRIANGLE_FAN, 0, SUBDIVISION + 2);
-  gl.drawArrays(gl.TRIANGLE_FAN, SUBDIVISION + 2, SUBDIVISION + 2);
-  gl.drawArrays(
-    gl.TRIANGLE_STRIP,
-    2 * (SUBDIVISION + 2),
-    (SUBDIVISION + 1) * 2 * (SUBDIVISION - 2)
-  );
+  var startIdx = 0;
+  for (const drawable of sphereDrawables) {
+    const vertexCount = drawable.vertices.length / 3;
+    gl.drawArrays(drawable.drawArraysType, startIdx, vertexCount);
+    startIdx += vertexCount;
+  }
 }
 
 export default function App() {
