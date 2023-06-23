@@ -20,12 +20,11 @@ for (let i = 0; i < length; i++) {
     colors.push(...Color.rainbow(.9).toArray4())
   }
 
-
   return {vertices, colors, ...getShaderSources()};
 }
 
 // prettier-ignore
-function getMatrices(canvas: HTMLCanvasElement) {
+function getMatrixConstants(canvas: HTMLCanvasElement) {
   const fieldOfView = (45 * Math.PI) / 180; // in radians
   const aspect = canvas.clientWidth / canvas.clientHeight;
   const zNear = .1;
@@ -33,16 +32,10 @@ function getMatrices(canvas: HTMLCanvasElement) {
 	const projectionMatrix = mat4.create();
   mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
   
-  const identityMatrix = [ // Identity matrix
-  1, 0, 0, 0,
-  0, 1, 0, 0, 
-  0, 0, 1, 0,
-  0, 0, 0, 1];
-
 	const viewMatrix = mat4.create();
   mat4.lookAt(viewMatrix, [0, 0, -3], [0, 0, 0], [0, 1, 0])
 
-  return { projectionMatrix, viewMatrix, identityMatrix};
+  return { projectionMatrix, viewMatrix};
 }
 
 function getShaderSources() {
@@ -79,7 +72,7 @@ function getShaderSources() {
 function draw(canvas: HTMLCanvasElement, totalTime: number) {
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
   const { vertices, colors, vertexShader, fragmentShader } = getMeshConstants();
-  const { projectionMatrix, viewMatrix } = getMatrices(canvas);
+  const { projectionMatrix, viewMatrix } = getMatrixConstants(canvas);
 
   /* ----------------------------- Create Program ----------------------------- */
   const vs = webGL.compileShader(gl, vertexShader, gl.VERTEX_SHADER);
@@ -96,12 +89,12 @@ function draw(canvas: HTMLCanvasElement, totalTime: number) {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
   /* -------------------------- Set Uniform Variables ------------------------- */
-  const mProjLocation = gl.getUniformLocation(program, 'mProj');
   gl.useProgram(program);
+
+  const mProjLocation = gl.getUniformLocation(program, 'mProj');
   gl.uniformMatrix4fv(mProjLocation, false, projectionMatrix);
 
   const mViewLocation = gl.getUniformLocation(program, 'mView');
-  gl.useProgram(program);
   gl.uniformMatrix4fv(mViewLocation, false, viewMatrix);
 
   /* ---------------------- Set Vertex Shader Attributes ---------------------- */
