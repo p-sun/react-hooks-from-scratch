@@ -65,7 +65,7 @@ export class Color {
     return this._hexString!;
   }
 
-  toArray4(): [number, number, number, number] {
+  array4(): [number, number, number, number] {
     return [this.r, this.g, this.b, 1];
   }
 

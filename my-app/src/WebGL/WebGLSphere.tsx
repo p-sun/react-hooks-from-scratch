@@ -47,7 +47,7 @@ function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   /* ---------------------- Set Vertex Shader Attributes ---------------------- */
   const p = gl.getAttribLocation(program, 'pos');
   gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer);
-  gl.vertexAttribPointer(p, 3, gl.FLOAT, false, 0, 0); // Pull out 3 FLOATs per iteration
+  gl.vertexAttribPointer(p, 3, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(p);
 
   const c = gl.getAttribLocation(program, 'clr');
@@ -133,20 +133,20 @@ function getSphereMesh(gl: WebGL2RenderingContext, sphereRadius: number, length:
 
   let firstLayer: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_FAN };
   firstLayer.vertices.push(...[0, sphereRadius, 0]);
-  firstLayer.colors.push(...Color.rainbow(0).toArray4()); // red
+  firstLayer.colors.push(...Color.rainbow(0).array4()); // red
   for (let i = 0; i < length + 1; i++) {
     firstLayer.vertices.push(...circleVertices[i % length]);
-    firstLayer.colors.push(...Color.rainbow((i % length) / length).toArray4());
+    firstLayer.colors.push(...Color.rainbow((i % length) / length).array4());
   }
 
   /* ------------------------ Last layer of triangles ------------------------ */
   let lastLayer: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_FAN };
   lastLayer.vertices.push(...[0, -sphereRadius, 0]);
-  lastLayer.colors.push(...Color.rainbow(0).toArray4()); // red
+  lastLayer.colors.push(...Color.rainbow(0).array4()); // red
   for (let i = 0; i < length + 1; i++) {
     const v = circleVertices[i % length];
     lastLayer.vertices.push(v[0], -v[1], v[2]);
-    lastLayer.colors.push(...Color.rainbow((i % length) / length).toArray4());
+    lastLayer.colors.push(...Color.rainbow((i % length) / length).array4());
   }
 
   /* ------------------------ Middle layer of triangles ----------------------- */
@@ -162,9 +162,9 @@ function getSphereMesh(gl: WebGL2RenderingContext, sphereRadius: number, length:
     // For each horizontal angle
     for (let j = 0; j < length + 1; j++) {
       middleLayers.vertices.push(...currentCircle[j % length]);
-      middleLayers.colors.push(...Color.rainbow((j % length) / length).toArray4());
+      middleLayers.colors.push(...Color.rainbow((j % length) / length).array4());
       middleLayers.vertices.push(...nextCircle[j % length]);
-      middleLayers.colors.push(...Color.rainbow((j % length) / length).toArray4());
+      middleLayers.colors.push(...Color.rainbow((j % length) / length).array4());
     }
   }
 
@@ -189,6 +189,9 @@ function vertexForSphere(sphereRadius: number, angleRadXY: number, angleRadXZ: n
   return [x, y, z];
 }
 
+/* -------------------------------------------------------------------------- */
+/*                               React Component                              */
+/* -------------------------------------------------------------------------- */
 export default function App() {
   const canvas = useRef(null as HTMLCanvasElement | null);
   const intervalRef = useRef(undefined as undefined | NodeJS.Timer);
