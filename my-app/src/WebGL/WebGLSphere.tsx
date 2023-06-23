@@ -45,12 +45,13 @@ function getShaderSources() {
 
   uniform mat4 mProj;
   uniform mat4 mView;
+  uniform mat4 mWorld;
 
   out vec4 vcolor;
 
   void main()
   {
-      gl_Position = mProj * mView * vec4(pos,1); // vec4(x,y,z,w)
+      gl_Position = mProj * mView * mWorld * vec4(pos,1); // vec4(x,y,z,w)
       vcolor = clr;
   }
   `;
@@ -69,7 +70,7 @@ function getShaderSources() {
   return { vertexShader, fragmentShader };
 }
 
-function draw(canvas: HTMLCanvasElement, totalTime: number) {
+function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
   const { vertices, colors, vertexShader, fragmentShader } = getMeshConstants();
   const { projectionMatrix, viewMatrix } = getMatrixConstants(canvas);
@@ -97,6 +98,9 @@ function draw(canvas: HTMLCanvasElement, totalTime: number) {
   const mViewLocation = gl.getUniformLocation(program, 'mView');
   gl.uniformMatrix4fv(mViewLocation, false, viewMatrix);
 
+  const mWorldLocation = gl.getUniformLocation(program, 'mWorld');
+  gl.uniformMatrix4fv(mWorldLocation, false, worldMatrix);
+
   /* ---------------------- Set Vertex Shader Attributes ---------------------- */
   const p = gl.getAttribLocation(program, 'pos');
   gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer);
@@ -114,10 +118,21 @@ function draw(canvas: HTMLCanvasElement, totalTime: number) {
 
 export default function App() {
   const canvas = useRef(null as HTMLCanvasElement | null);
+  const intervalRef = useRef(undefined as undefined | NodeJS.Timer);
   const startTime = useRef(performance.now());
+  const worldMatrix = mat4.create();
+  const identityMatrix = mat4.create();
 
   useEffect(() => {
-    draw(canvas.current!, performance.now() - startTime.current);
+    intervalRef.current = setInterval(() => {
+      const totalTime = performance.now() - startTime.current;
+      mat4.rotate(worldMatrix, identityMatrix, totalTime / 800, [0, 1, 0]);
+      draw(canvas.current!, worldMatrix);
+    }, 1000 / 60);
+
+    return () => {
+      clearInterval(intervalRef.current!);
+    };
   }, []);
 
   return <canvas style={{ height: 600 }} ref={canvas} />;
