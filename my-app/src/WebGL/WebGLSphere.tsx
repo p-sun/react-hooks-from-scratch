@@ -3,26 +3,51 @@ import * as webGL from './WebGLUtils';
 import { Color } from './Color';
 import { mat4 } from 'gl-matrix';
 
+/* -------------------------------------------------------------------------- */
+/*                                Sphere Mesh                                 */
+/* -------------------------------------------------------------------------- */
 // prettier-ignore
-function getMeshConstants() {
+function getSphereMeshConstants() {
 let vertices: number[] = [];
 let colors: number[] = [];
-let length = 1
-let capHeight = 0.5
+const length = 6
+const sphereRadius = 0.8
 
-for (let i = 0; i < length; i++) {
-    vertices.push(...[
-      0, 0.8, 0,
-      -0.4, 0.8 - capHeight, 0,
-      0.2, 0.8 - capHeight, 0])
-    colors.push(...Color.rainbow(0).toArray4())
-    colors.push(...Color.rainbow(0.4).toArray4())
-    colors.push(...Color.rainbow(.9).toArray4())
+const firstAngleRad = Math.PI/2 - 1/length * Math.PI
+let sphereVertices = verticesForCircle(sphereRadius, firstAngleRad, length)
+  for (let i = 0; i < length; i++) {
+    vertices.push(...[0, sphereRadius, 0])
+    vertices.push(...sphereVertices[i])
+    vertices.push(...sphereVertices[(i + 1) % length])
+    colors.push(...Color.rainbow(0).toArray4()) // red
+    colors.push(...Color.rainbow(0.4).toArray4()) // green
+    colors.push(...Color.rainbow(.9).toArray4()) // blue
   }
 
-  return {vertices, colors, ...getShaderSources()};
+  return {vertices, colors};
 }
 
+function verticesForCircle(sphereRadius: number, angleRadXY: number, length: number) {
+  let vertices: number[][] = [];
+  for (let i = 0; i < length; i++) {
+    vertices.push(vertexForSphere(sphereRadius, angleRadXY, (i / length) * Math.PI * 2));
+  }
+  return vertices;
+}
+
+function vertexForSphere(sphereRadius: number, angleRadXY: number, angleRadXZ: number) {
+  let xRadius = sphereRadius * Math.cos(angleRadXY);
+  let y = sphereRadius * Math.sin(angleRadXY);
+
+  let x = xRadius * Math.cos(angleRadXZ);
+  let z = xRadius * Math.sin(angleRadXZ);
+
+  return [x, y, z];
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   Matrix                                   */
+/* -------------------------------------------------------------------------- */
 // prettier-ignore
 function getMatrixConstants(canvas: HTMLCanvasElement) {
   const fieldOfView = (45 * Math.PI) / 180; // in radians
@@ -33,11 +58,14 @@ function getMatrixConstants(canvas: HTMLCanvasElement) {
   mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
   
 	const viewMatrix = mat4.create();
-  mat4.lookAt(viewMatrix, [0, 0, -3], [0, 0, 0], [0, 1, 0])
+  mat4.lookAt(viewMatrix, [0, 0, -4], [0, 0, 0], [0, 1, 0])
 
   return { projectionMatrix, viewMatrix};
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                   Shaders                                  */
+/* -------------------------------------------------------------------------- */
 function getShaderSources() {
   const vertexShader = `# version 300 es
   in vec3 pos;
@@ -70,10 +98,14 @@ function getShaderSources() {
   return { vertexShader, fragmentShader };
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                    Draw                                    */
+/* -------------------------------------------------------------------------- */
 function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
-  const { vertices, colors, vertexShader, fragmentShader } = getMeshConstants();
+  const { vertices, colors } = getSphereMeshConstants();
   const { projectionMatrix, viewMatrix } = getMatrixConstants(canvas);
+  const { vertexShader, fragmentShader } = getShaderSources();
 
   /* ----------------------------- Create Program ----------------------------- */
   const vs = webGL.compileShader(gl, vertexShader, gl.VERTEX_SHADER);
@@ -126,14 +158,15 @@ export default function App() {
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       const totalTime = performance.now() - startTime.current;
-      mat4.rotate(worldMatrix, identityMatrix, totalTime / 800, [0, 1, 0]);
+      // mat4.rotate(worldMatrix, identityMatrix, 0, [0, 1, 0]);
+      mat4.rotate(worldMatrix, identityMatrix, totalTime / 800 / 3, [0, 1, 0]);
       draw(canvas.current!, worldMatrix);
     }, 1000 / 60);
 
     return () => {
       clearInterval(intervalRef.current!);
     };
-  }, []);
+  });
 
   return <canvas style={{ height: 600 }} ref={canvas} />;
 }
