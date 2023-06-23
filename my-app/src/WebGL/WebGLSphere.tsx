@@ -7,12 +7,13 @@ import { mat4 } from 'gl-matrix';
 /*                                    Draw                                    */
 /* -------------------------------------------------------------------------- */
 function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
-  const SUBDIVISION = 10;
+  const STEPS_V = 16; // Number of vertical layers
+  const STEPS_H = 10; // Number of angles in each horizontal circle, in a layer
   const SPHERE_RADIUS = 0.8;
   const LOOKAT_DIR: [number, number, number] = [0, 1, -2.4];
 
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
-  const sphereDrawables = getSphereMesh(gl, SPHERE_RADIUS, SUBDIVISION);
+  const sphereDrawables = getSphereMesh(gl, SPHERE_RADIUS, STEPS_H, STEPS_V);
   const vertices = sphereDrawables.map((d) => d.vertices).flat();
   const colors = sphereDrawables.map((d) => d.colors).flat();
   const { projectionMatrix, viewMatrix } = getMatrixConstants(canvas, LOOKAT_DIR);
@@ -126,55 +127,60 @@ type Drawable = {
   drawArraysType: GLenum;
 };
 
-function getSphereMesh(gl: WebGL2RenderingContext, sphereRadius: number, length: number) {
-  /* ------------------------ First layer of triangles ------------------------ */
-  const firstAngleRad = Math.PI / 2 - (1 / length) * Math.PI;
-  const circleVertices = verticesForCircle(sphereRadius, firstAngleRad, length);
+function getSphereMesh(
+  gl: WebGL2RenderingContext,
+  sphereRadius: number,
+  stepsH: number,
+  stepsV: number
+) {
+  const firstAngleRad = Math.PI / 2 - (1 / stepsV) * Math.PI;
+  const circleVertices = verticesForCircle(sphereRadius, firstAngleRad, stepsH);
 
+  /* ------------------------ First layer of triangles ------------------------ */
   let firstLayer: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_FAN };
   firstLayer.vertices.push(...[0, sphereRadius, 0]);
-  firstLayer.colors.push(...Color.rainbow(0).array4()); // red
-  for (let i = 0; i < length + 1; i++) {
-    firstLayer.vertices.push(...circleVertices[i % length]);
-    firstLayer.colors.push(...Color.rainbow((i % length) / length).array4());
+  firstLayer.colors.push(...[1, 1, 1, 1]); // white
+  for (let i = 0; i < stepsH + 1; i++) {
+    firstLayer.vertices.push(...circleVertices[i % stepsH]);
+    firstLayer.colors.push(...Color.rainbow((i % stepsH) / stepsH).array4());
   }
 
   /* ------------------------ Last layer of triangles ------------------------ */
   let lastLayer: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_FAN };
   lastLayer.vertices.push(...[0, -sphereRadius, 0]);
-  lastLayer.colors.push(...Color.rainbow(0).array4()); // red
-  for (let i = 0; i < length + 1; i++) {
-    const v = circleVertices[i % length];
+  lastLayer.colors.push(...[1, 1, 1, 1]); // white
+  for (let i = 0; i < stepsH + 1; i++) {
+    const v = circleVertices[i % stepsH];
     lastLayer.vertices.push(v[0], -v[1], v[2]);
-    lastLayer.colors.push(...Color.rainbow((i % length) / length).array4());
+    lastLayer.colors.push(...Color.rainbow((i % stepsH) / stepsH).array4());
   }
 
   /* ------------------------ Middle layer of triangles ----------------------- */
   let middleLayers: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_STRIP };
   // For each vertical layer
-  for (let i = 1; i < length - 1; i++) {
-    const angleYRad = Math.PI / 2 - (i / length) * Math.PI;
-    const currentCircle = verticesForCircle(sphereRadius, angleYRad, length);
+  for (let i = 1; i < stepsV - 1; i++) {
+    const angleYRad = Math.PI / 2 - (i / stepsV) * Math.PI;
+    const currentCircle = verticesForCircle(sphereRadius, angleYRad, stepsH);
 
-    const nextAngleYRad = Math.PI / 2 - ((i + 1) / length) * Math.PI;
-    const nextCircle = verticesForCircle(sphereRadius, nextAngleYRad, length);
+    const nextAngleYRad = Math.PI / 2 - ((i + 1) / stepsV) * Math.PI;
+    const nextCircle = verticesForCircle(sphereRadius, nextAngleYRad, stepsH);
 
     // For each horizontal angle
-    for (let j = 0; j < length + 1; j++) {
-      middleLayers.vertices.push(...currentCircle[j % length]);
-      middleLayers.colors.push(...Color.rainbow((j % length) / length).array4());
-      middleLayers.vertices.push(...nextCircle[j % length]);
-      middleLayers.colors.push(...Color.rainbow((j % length) / length).array4());
+    for (let j = 0; j < stepsH + 1; j++) {
+      middleLayers.vertices.push(...currentCircle[j % stepsH]);
+      middleLayers.colors.push(...Color.rainbow((j % stepsH) / stepsH).array4());
+      middleLayers.vertices.push(...nextCircle[j % stepsH]);
+      middleLayers.colors.push(...Color.rainbow((j % stepsH) / stepsH).array4());
     }
   }
 
   return [firstLayer, lastLayer, middleLayers];
 }
 
-function verticesForCircle(sphereRadius: number, angleRadXY: number, length: number) {
+function verticesForCircle(sphereRadius: number, angleRadXY: number, stepsH: number) {
   let vertices: number[][] = [];
-  for (let i = 0; i < length; i++) {
-    vertices.push(vertexForSphere(sphereRadius, angleRadXY, (i / length) * Math.PI * 2));
+  for (let i = 0; i < stepsH; i++) {
+    vertices.push(vertexForSphere(sphereRadius, angleRadXY, (i / stepsH) * Math.PI * 2));
   }
   return vertices;
 }

@@ -19,7 +19,7 @@ type Page = {
 const pages: Page[] = [
   {
     title: 'WebGL Sphere',
-    description: 'A vertex and fragment shader written in WebGL that draws two triangles.',
+    description: 'A vertex and fragment shader written in WebGL that draws a sphere.',
     component: WebGLSphere,
   },
   {
