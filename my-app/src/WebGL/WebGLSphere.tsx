@@ -9,7 +9,7 @@ import { mat4 } from 'gl-matrix';
 function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   const SUBDIVISION = 10;
   const SPHERE_RADIUS = 0.8;
-  const LOOKAT_DIR: [number, number, number] = [0, 2, -2.4];
+  const LOOKAT_DIR: [number, number, number] = [0, 1, -2.4];
 
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
   const sphereDrawables = getSphereMesh(gl, SPHERE_RADIUS, SUBDIVISION);
