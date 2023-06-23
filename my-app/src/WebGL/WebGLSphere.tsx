@@ -9,6 +9,9 @@ import { mat4 } from 'gl-matrix';
 function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   /* -------------------------------- Config GL -------------------------------- */
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
+  gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.BACK); // default
+  gl.frontFace(gl.CW); // default
 
   /* ------------------------------- Setup Mesh ------------------------------- */
   const STEPS_V = 24; // Number of vertical layers
@@ -151,7 +154,7 @@ function getSphereMesh(
   let lastLayer: Drawable = { vertices: [], colors: [], drawArraysType: gl.TRIANGLE_FAN };
   lastLayer.vertices.push(...[0, -sphereRadius, 0]);
   lastLayer.colors.push(...[1, 1, 1, 1]); // white
-  for (let i = 0; i < stepsH + 1; i++) {
+  for (let i = stepsH + 1; i > 0; i--) {
     const v = circleVertices[i % stepsH];
     lastLayer.vertices.push(v[0], -v[1], v[2]);
     lastLayer.colors.push(...Color.rainbow((i % stepsH) / stepsH).array4());
