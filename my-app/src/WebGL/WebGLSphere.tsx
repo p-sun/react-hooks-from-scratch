@@ -16,10 +16,17 @@ function getMatrixConstants(canvas: HTMLCanvasElement) {
   mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
   
 	const viewMatrix = mat4.create();
-  mat4.lookAt(viewMatrix, [0, 2, -2], [0, 0, 0], [0, 1, 0])
+  mat4.lookAt(viewMatrix, [0, 0, -4], [0, 0, 0], [0, 1, 0])
 
   return { projectionMatrix, viewMatrix};
 }
+
+type Drawable = {
+  vertices: number[];
+  colors: number[];
+  drawArraysType: GLenum;
+  length: number;
+};
 
 /* -------------------------------------------------------------------------- */
 /*                                Sphere Mesh                                 */
@@ -37,21 +44,20 @@ function getSphereMeshConstants(length: number) {
   colors.push(...Color.rainbow(0).toArray4()) // red
   for (let i = 0; i < length + 1; i++) {
     vertices.push(...circleVertices[i % length])
-    colors.push(...Color.rainbow((i % length)/length).toArray4()) // green
+    colors.push(...Color.rainbow((i % length)/length).toArray4()) 
   }
 
    /* ------------------------ Last layer of triangles ------------------------ */
   vertices.push(...[0, -sphereRadius, 0])
-  colors.push(...Color.rainbow(0).toArray4()) // magenta
+  colors.push(...Color.rainbow(0).toArray4()) // red
   for (let i = 0; i < length + 1; i++) {
      const v = circleVertices[i % length]
      vertices.push(v[0], -v[1], v[2])
-     colors.push(...Color.rainbow((i % length)/length).toArray4()) // green
+     colors.push(...Color.rainbow((i % length)/length).toArray4()) 
   }
 
   /* ------------------------ Middle layer of triangles ----------------------- */
-  // for (let i = 1; i < length - 2; i++) { // For each layer of triangles
-  const i = 1
+  for (let i = 1; i < length - 1; i++) { // For each vertical layer
     const angleYRad = Math.PI/2 - i/length * Math.PI
     const currentCircle = verticesForCircle(sphereRadius, angleYRad, length)
 
@@ -64,7 +70,7 @@ function getSphereMeshConstants(length: number) {
       vertices.push(...nextCircle[j % length])
       colors.push(...Color.rainbow(((j + 1) % length)/length).toArray4())
     }
-  // }
+  }
 
   return {vertices, colors};
 }
@@ -172,7 +178,11 @@ function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   /* ------------------------------ Draw Scene ------------------------------- */
   gl.drawArrays(gl.TRIANGLE_FAN, 0, SUBDIVISION + 2);
   gl.drawArrays(gl.TRIANGLE_FAN, SUBDIVISION + 2, SUBDIVISION + 2);
-  gl.drawArrays(gl.TRIANGLE_STRIP, 2 * (SUBDIVISION + 2), (SUBDIVISION + 1) * 2);
+  gl.drawArrays(
+    gl.TRIANGLE_STRIP,
+    2 * (SUBDIVISION + 2),
+    (SUBDIVISION + 1) * 2 * (SUBDIVISION - 2)
+  );
 }
 
 export default function App() {
