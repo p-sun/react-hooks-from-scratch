@@ -32,11 +32,11 @@ function getSphereMeshConstants(length: number) {
 
    /* ------------------------ First layer of triangles ------------------------ */
   const firstAngleRad = Math.PI/2 - 1/length * Math.PI
-  const sphereVertices = verticesForCircle(sphereRadius, firstAngleRad, length)
+  const circleVertices = verticesForCircle(sphereRadius, firstAngleRad, length)
   vertices.push(...[0, sphereRadius, 0])
   colors.push(...Color.rainbow(0).toArray4()) // red
   for (let i = 0; i < length + 1; i++) {
-    vertices.push(...sphereVertices[i % length])
+    vertices.push(...circleVertices[i % length])
     colors.push(...Color.rainbow((i % length)/length).toArray4()) // green
   }
 
@@ -44,10 +44,27 @@ function getSphereMeshConstants(length: number) {
   vertices.push(...[0, -sphereRadius, 0])
   colors.push(...Color.rainbow(0).toArray4()) // magenta
   for (let i = 0; i < length + 1; i++) {
-     const v = sphereVertices[i % length]
+     const v = circleVertices[i % length]
      vertices.push(v[0], -v[1], v[2])
      colors.push(...Color.rainbow((i % length)/length).toArray4()) // green
   }
+
+  /* ------------------------ Middle layer of triangles ----------------------- */
+  // for (let i = 1; i < length - 2; i++) { // For each layer of triangles
+  const i = 1
+    const angleYRad = Math.PI/2 - i/length * Math.PI
+    const currentCircle = verticesForCircle(sphereRadius, angleYRad, length)
+
+    const nextAngleYRad = Math.PI/2 - (i+1)/length * Math.PI
+    const nextCircle = verticesForCircle(sphereRadius, nextAngleYRad, length)
+
+    for (let j = 0; j < length + 1; j++) { // For each horizontal angle
+      vertices.push(...currentCircle[j % length])
+      colors.push(...Color.rainbow((j % length)/length).toArray4())
+      vertices.push(...nextCircle[j % length])
+      colors.push(...Color.rainbow(((j + 1) % length)/length).toArray4())
+    }
+  // }
 
   return {vertices, colors};
 }
@@ -155,6 +172,7 @@ function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   /* ------------------------------ Draw Scene ------------------------------- */
   gl.drawArrays(gl.TRIANGLE_FAN, 0, SUBDIVISION + 2);
   gl.drawArrays(gl.TRIANGLE_FAN, SUBDIVISION + 2, SUBDIVISION + 2);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 2 * (SUBDIVISION + 2), (SUBDIVISION + 1) * 2);
 }
 
 export default function App() {
