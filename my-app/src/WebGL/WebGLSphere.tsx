@@ -7,12 +7,15 @@ import { mat4 } from 'gl-matrix';
 /*                                    Draw                                    */
 /* -------------------------------------------------------------------------- */
 function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
-  const STEPS_V = 16; // Number of vertical layers
-  const STEPS_H = 10; // Number of angles in each horizontal circle, in a layer
-  const SPHERE_RADIUS = 0.8;
-  const LOOKAT_DIR: [number, number, number] = [0, 1, -2.4];
-
+  /* -------------------------------- Config GL -------------------------------- */
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
+
+  /* ------------------------------- Setup Mesh ------------------------------- */
+  const STEPS_V = 24; // Number of vertical layers
+  const STEPS_H = 18; // Number of angles in each horizontal circle, in a layer
+  const SPHERE_RADIUS = 0.8;
+  const LOOKAT_DIR: [number, number, number] = [0, 1.6, -2.4];
+
   const sphereDrawables = getSphereMesh(gl, SPHERE_RADIUS, STEPS_H, STEPS_V);
   const vertices = sphereDrawables.map((d) => d.vertices).flat();
   const colors = sphereDrawables.map((d) => d.colors).flat();
@@ -23,9 +26,11 @@ function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   const vs = webGL.compileShader(gl, vertexShader, gl.VERTEX_SHADER);
   const fs = webGL.compileShader(gl, fragmentShader, gl.FRAGMENT_SHADER);
   const program = webGL.linkProgram(gl, vs, fs);
+  gl.useProgram(program);
 
   /* ------------------------------ Create Buffers ---------------------------- */
   const pos_buffer = gl.createBuffer();
+
   gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer); // Use data from vertices buffer
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
@@ -34,8 +39,6 @@ function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
   /* -------------------------- Set Uniform Variables ------------------------- */
-  gl.useProgram(program);
-
   const mProjLocation = gl.getUniformLocation(program, 'mProj');
   gl.uniformMatrix4fv(mProjLocation, false, projectionMatrix);
 
@@ -120,7 +123,6 @@ function getMatrixConstants(canvas: HTMLCanvasElement, lookAtDir: [number, numbe
 /* -------------------------------------------------------------------------- */
 /*                                Sphere Mesh                                 */
 /* -------------------------------------------------------------------------- */
-
 type Drawable = {
   vertices: number[];
   colors: number[];
@@ -167,25 +169,28 @@ function getSphereMesh(
 
     // For each horizontal angle
     for (let j = 0; j < stepsH + 1; j++) {
+      const color = Color.rainbow((j % stepsH) / stepsH).array4();
       middleLayers.vertices.push(...currentCircle[j % stepsH]);
-      middleLayers.colors.push(...Color.rainbow((j % stepsH) / stepsH).array4());
+      middleLayers.colors.push(...color);
+
       middleLayers.vertices.push(...nextCircle[j % stepsH]);
-      middleLayers.colors.push(...Color.rainbow((j % stepsH) / stepsH).array4());
+      middleLayers.colors.push(...color);
     }
   }
 
   return [firstLayer, lastLayer, middleLayers];
 }
 
+// Horizontal circle
 function verticesForCircle(sphereRadius: number, angleRadXY: number, stepsH: number) {
   let vertices: number[][] = [];
   for (let i = 0; i < stepsH; i++) {
-    vertices.push(vertexForSphere(sphereRadius, angleRadXY, (i / stepsH) * Math.PI * 2));
+    vertices.push(vertexOnSphere(sphereRadius, angleRadXY, (i / stepsH) * Math.PI * 2));
   }
   return vertices;
 }
 
-function vertexForSphere(sphereRadius: number, angleRadXY: number, angleRadXZ: number) {
+function vertexOnSphere(sphereRadius: number, angleRadXY: number, angleRadXZ: number) {
   let xRadius = sphereRadius * Math.cos(angleRadXY);
   let y = sphereRadius * Math.sin(angleRadXY);
 
