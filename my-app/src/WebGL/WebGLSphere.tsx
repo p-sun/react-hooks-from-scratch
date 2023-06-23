@@ -4,24 +4,49 @@ import { Color } from './Color';
 import { mat4 } from 'gl-matrix';
 
 /* -------------------------------------------------------------------------- */
+/*                                   Matrix                                   */
+/* -------------------------------------------------------------------------- */
+// prettier-ignore
+function getMatrixConstants(canvas: HTMLCanvasElement) {
+  const fieldOfView = (45 * Math.PI) / 180; // in radians
+  const aspect = canvas.clientWidth / canvas.clientHeight;
+  const zNear = .1;
+  const zFar = 100.0;
+	const projectionMatrix = mat4.create();
+  mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+  
+	const viewMatrix = mat4.create();
+  mat4.lookAt(viewMatrix, [0, 2, -2], [0, 0, 0], [0, 1, 0])
+
+  return { projectionMatrix, viewMatrix};
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                Sphere Mesh                                 */
 /* -------------------------------------------------------------------------- */
 // prettier-ignore
-function getSphereMeshConstants() {
-let vertices: number[] = [];
-let colors: number[] = [];
-const length = 6
-const sphereRadius = 0.8
+function getSphereMeshConstants(length: number) {
+  let vertices: number[] = [];
+  let colors: number[] = [];
+  const sphereRadius = 0.8
 
-const firstAngleRad = Math.PI/2 - 1/length * Math.PI
-let sphereVertices = verticesForCircle(sphereRadius, firstAngleRad, length)
-  for (let i = 0; i < length; i++) {
-    vertices.push(...[0, sphereRadius, 0])
-    vertices.push(...sphereVertices[i])
-    vertices.push(...sphereVertices[(i + 1) % length])
-    colors.push(...Color.rainbow(0).toArray4()) // red
-    colors.push(...Color.rainbow(0.4).toArray4()) // green
-    colors.push(...Color.rainbow(.9).toArray4()) // blue
+   /* ------------------------ First layer of triangles ------------------------ */
+  const firstAngleRad = Math.PI/2 - 1/length * Math.PI
+  const sphereVertices = verticesForCircle(sphereRadius, firstAngleRad, length)
+  vertices.push(...[0, sphereRadius, 0])
+  colors.push(...Color.rainbow(0).toArray4()) // red
+  for (let i = 0; i < length + 1; i++) {
+    vertices.push(...sphereVertices[i % length])
+    colors.push(...Color.rainbow((i % length)/length).toArray4()) // green
+  }
+
+   /* ------------------------ Last layer of triangles ------------------------ */
+  vertices.push(...[0, -sphereRadius, 0])
+  colors.push(...Color.rainbow(0).toArray4()) // magenta
+  for (let i = 0; i < length + 1; i++) {
+     const v = sphereVertices[i % length]
+     vertices.push(v[0], -v[1], v[2])
+     colors.push(...Color.rainbow((i % length)/length).toArray4()) // green
   }
 
   return {vertices, colors};
@@ -43,24 +68,6 @@ function vertexForSphere(sphereRadius: number, angleRadXY: number, angleRadXZ: n
   let z = xRadius * Math.sin(angleRadXZ);
 
   return [x, y, z];
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                   Matrix                                   */
-/* -------------------------------------------------------------------------- */
-// prettier-ignore
-function getMatrixConstants(canvas: HTMLCanvasElement) {
-  const fieldOfView = (45 * Math.PI) / 180; // in radians
-  const aspect = canvas.clientWidth / canvas.clientHeight;
-  const zNear = .1;
-  const zFar = 100.0;
-	const projectionMatrix = mat4.create();
-  mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-  
-	const viewMatrix = mat4.create();
-  mat4.lookAt(viewMatrix, [0, 0, -4], [0, 0, 0], [0, 1, 0])
-
-  return { projectionMatrix, viewMatrix};
 }
 
 /* -------------------------------------------------------------------------- */
@@ -103,7 +110,8 @@ function getShaderSources() {
 /* -------------------------------------------------------------------------- */
 function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   const gl = webGL.getGLContext(canvas, [0.0, 0.8, 0.8, 1]);
-  const { vertices, colors } = getSphereMeshConstants();
+  const SUBDIVISION = 6;
+  const { vertices, colors } = getSphereMeshConstants(SUBDIVISION);
   const { projectionMatrix, viewMatrix } = getMatrixConstants(canvas);
   const { vertexShader, fragmentShader } = getShaderSources();
 
@@ -145,7 +153,8 @@ function draw(canvas: HTMLCanvasElement, worldMatrix: mat4) {
   gl.enableVertexAttribArray(c);
 
   /* ------------------------------ Draw Scene ------------------------------- */
-  gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, SUBDIVISION + 2);
+  gl.drawArrays(gl.TRIANGLE_FAN, SUBDIVISION + 2, SUBDIVISION + 2);
 }
 
 export default function App() {
